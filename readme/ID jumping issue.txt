@@ -1,0 +1,107 @@
+-------- Method1: Use a sequence generator with the NO CACHE--------------------------------------------
+CREATE SEQUENCE Sequence_HMS
+    AS INT
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 0
+    NO MAXVALUE
+    NO CACHE
+
+CREATE TABLE t1 (Id INT PRIMARY KEY DEFAULT NEXT VALUE FOR s1, col INT NOT NULL);
+CREATE TABLE patient_work
+     ( 
+        ID INT PRIMARY KEY DEFAULT NEXT VALUE FOR Sequence_HMS NOT NULL, 
+        patient_name VARCHAR(100) NOT NULL,
+	patient_id VARCHAR(30) NOT NULL,
+	patient_age VARCHAR(10) NOT NULL,
+	patient_contact VARCHAR(30) NULL,
+	doctor VARCHAR(50) NOT NULL,
+        work_type VARCHAR(4) NOT NULL,   /* 1:已挂号 2:已开处方  3:已付费  4:已取药 */      
+        guahao_date  DATETIME  NULL, 
+        chufang_date  DATETIME NULL,
+	pay_date  DATETIME NULL,
+	quyao_date  DATETIME NULL,
+
+     )
+GO
+
+-------- Method2: Use trace flag 272--------------------------------------
+For those who want to know how to add Trace flag 272 here are the steps
+
+1. Open "SQL Server Configuration Manager"
+2. Click "SQL Server Services" on the left pane
+3. Right-click on your SQL Server instance name on the right pane
+4. Click "Properties"
+5. Click "Startup Parameters"
+6. On the "specify a startup parameter" textbox type "-T272"
+7. Click "Add"
+8. Confirm the changes
+
+
+https://connect.microsoft.com/SQLServer/feedback/details/739013/alwayson-fail
+http://www.sqlserver-training.com/sequence-breaks-gap-in-numbers-after-restart-sql-server-gap-between-numbers-after-restarting-server/-
+
+
+
+
+------------------------------------------------------
+
+1. Create an Procedure on Database
+CREATE PROCEDURE dbo.InsertCategory
+  @CategoryName nvarchar(15),
+  @Identity int OUT
+AS
+INSERT INTO Categories (CategoryName) VALUES(@CategoryName)
+SET @Identity = SCOPE_IDENTITY()
+
+2. VB.NET 
+
+Private Sub RetrieveIdentity(ByVal connectionString As String)
+    Using connection As SqlConnection = New SqlConnection( _
+       connectionString)
+
+        ' Create a SqlDataAdapter based on a SELECT query.
+        Dim adapter As SqlDataAdapter = New SqlDataAdapter( _
+           "SELECT CategoryID, CategoryName FROM dbo.Categories", _
+           connection)
+
+        ' Create the SqlCommand to execute the stored procedure. 
+        adapter.InsertCommand = New SqlCommand("dbo.InsertCategory", _
+           connection)
+        adapter.InsertCommand.CommandType = CommandType.StoredProcedure
+
+        ' Add the parameter for the CategoryName. Specifying the
+        ' ParameterDirection for an input parameter is not required.
+        adapter.InsertCommand.Parameters.Add( _
+          "@CategoryName", SqlDbType.NVarChar, 15, "CategoryName")
+
+        ' Add the SqlParameter to retrieve the new identity value.
+        ' Specify the ParameterDirection as Output.
+        Dim parameter As SqlParameter = _
+           adapter.InsertCommand.Parameters.Add( _
+          "@Identity", SqlDbType.Int, 0, "CategoryID")
+        parameter.Direction = ParameterDirection.Output
+
+        ' Create a DataTable and fill it.
+        Dim categories As DataTable = New DataTable
+        adapter.Fill(categories)
+
+        ' Add a new row.
+        Dim newRow As DataRow = categories.NewRow()
+        newRow("CategoryName") = "New Category"
+        categories.Rows.Add(newRow)
+
+        ' Update the database.
+        adapter.Update(categories)
+
+        Console.WriteLine("List All Rows:")
+        Dim row As DataRow
+        For Each row In categories.Rows
+            Console.WriteLine("{0}: {1}", row(0), row(1))
+        Next
+    End Using
+End Sub
+
+
+
+https://msdn.microsoft.com/en-us/library/ks9f57t0(v=vs.110).aspx

@@ -1,0 +1,1 @@
+"D:\Program Files\Microsoft SQL Server\Client SDK\ODBC\110\Tools\Binn\SQLCMD.EXE" -S .\SQLEXPRESS -Q "EXEC sp_BackupDatabases @backupLocation='D:\db_backup\', @databaseName='HMS', @backupType='F'"

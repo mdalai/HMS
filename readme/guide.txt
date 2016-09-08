@@ -1,0 +1,182 @@
+--------- Preparation ------------------------------------
+1. Teamviewer
+teamviewer: DALAI-PC/88117706    Dalai-PC/mingat.dalai@gmail.com/naren1984
+PC NAME: MS-20160221HCMB/PASSWORD: abc123
+2. Install SQL SERVER 2014 EXPRESS
+https://www.microsoft.com/en-us/server-cloud/products/sql-server-editions/sql-server-express.aspx
+Microsoft Username/password: mingat.dalai@gmail.com / Naren1984
+sql server: sa/4321 (Dalai-PC)    sa/1234 (Narandalai-PC)    sa/4321 (MS-20160221HCMB)
+
+
+
+SQL server remote connection configuration guide:
+http://blog.citrix24.com/configure-sql-express-to-accept-remote-connections/
+1. Enable remote connections on the instance of SQL Server that you want to connect to from a remote computer.[SQL Management Studio]
+2. Configure SQL express server to listen on static port. [SQL Server Configuration Manager]
+   netstat -ano | find /i "1628"  [cmd]
+   TCP/IP-- Configure port to 1433
+3. Turn on the SQL Server Browser service.
+   netstat -ano | find /i "1100"
+4. Configure the firewall to allow network traffic that is related to SQL Server and to the SQL Server Browser service.
+
+
+
+Test on remote computer:
+1. create a empty txt file and name extension as UDL
+2. open it, choose provider and input 192.168.1.75  / sa/1234
+
+
+“An error occurred while signing: SignTool.exe not found”: 
+   double click [My Project] -> [signing] -> check off the “Sign the ClickOnce manifest”
+
+-------1st Edit------------------
+After 1st Test:
+1. Add mongolian title
+2. Add "frmCashier", no need "frmGuaHao" and "frmPayMain"
+3. No need "frmMain"
+4. Add "frmDoctorMain", no need "frmDoctor"
+5. Add "frmMedicineMain", no need "frmTakeMedicine" and "frmMedicine"
+6. "patient_work" table's ID issue: how to increase 1 at a time?
+    It is due to restart SQLSERVER. Next time before restart SQLSERVER, I have to do:
+     [SQL Server Configuration Manager]-> Right-click SQL Server and select "Propertie" ->
+     In the opening window under "Startup Parameters", 
+     type "-T272" and click Add, then press Apply button and restart.
+
+7. datagridview data refresh by double_click
+8. After get the medicine, need to decrease the amount from "Medicine" table
+9. medicine managment page beautify.
+
+Form W&H: 1380, 675
+Tab_control W&H: 1250, 630 / 39, 12
+dgv2: 770, 560  -- 890, 560
+dgv2: 750, 520
+
+
+-------2nd Edit-----------------
+1. use Sequence to get max Guahao_ID; please refer to "ID jumping issue.txt"
+2. Add system admin: staff management, Guahao info management, 
+
+FAQ:
+1.How to backup database?
+2.How to solve bill printing?
+
+
+----3rd Edit----------------
+1. change MessageBox.show() to MsgBox("密码错误！", MsgBoxStyle.Critical, "无效")
+2. Doctors are allowed to see only their own info.
+	My.Settings.username = cmbLogin_username.Text
+        My.Settings.Save()
+
+----4th Edit----------------
+1. Adding the funciton of "filtering" the medicine list for the doctors.
+2. Change the choosing capability for the sake of adding new filtering function above.
+3. Only allowed to edit the "quantity" column after choosing the medicine list.
+
+
+----5th Edit----------------
+1. new "medicine" table designed
+2. Add medicine function
+3. Show medicine function
+4. delete medicine function
+5. Modify medicine
+
+----6th Edit----------------
+1. screen resolution problem: only to the "cashier" and "medicine" adjusted.
+2. refresh function to the medicine datagridview.
+3. printing function 
+
+----7th Edit----------------
+1. medicine selection function updated to conduct selection by double click, instead of using button.
+2. prescription apperance adjustment
+3. 挂号的时候不用必须输入身份证ID;
+4. Printing format update. Looks appopraite now.
+5. 医药管理增加库存量: 
+	- update database: add storage to [medicine]; add new table [medicine_storage]
+	- add storage function
+6. 药物管理增加 搜索功能
+7. 医生工作界面功能修改：
+	- 修改处方: 只能让收银员删除数据后重新挂号
+	- 查看历史处方的功能 (2,3,4)
+	- 新增处方描述功能： 增加table- [prescripton_remark]； 
+	- 单个删除选择药品功能
+
+----8th Edit----------------
+1.收据打印调整
+2.收费项 需要开发； 手术费需要手工输入价钱；
+	- 新增table:　[Feeitem], [prescription_feeitem]
+3.收费金额大写字母显示
+4.发票显示收银员
+5.药品选择不可重复的问题已解决 repeat.
+
+----9th Edit----------------
+1. 收费，开处方后不可重复操作；
+2. 打印处方医生签字地方
+3. 显示挂号信息，不显示星期
+4. 处方增加药物用法：用量|途径|次数
+	- Alter table [medicine]:  ALTER TABLE medicine ADD instruction VARCHAR(150) NULL;
+	- Modify the Medicine Management
+	- Alter table [prescription]: ALTER TABLE prescription ADD p_instruction VARCHAR(150) NULL;
+	- Modify the prescription function at Doctor's work place.
+	- Modify printing format
+5. 退费功能增加
+	- 挂号ID 显示在打印收据里;
+	- 新增 table [refund]；
+	- 在收银员工作界面 新增退费功能
+
+----10th Edit----------------
+1. 加'性别'，病人资料里
+	- Alter table [patient_work]: ALTER TABLE patient_work ADD sex VARCHAR(6) NULL;
+	- Modify cashier's workplace
+	- Modify doctor's prescription workplace
+2. 医生可以手工输入药物用法
+3. 开处方增加 规格；Alter table [prescription]: ALTER TABLE prescription ADD p_norms VARCHAR(50) NULL;
+4. 开处方时 把量排到规格后面；
+5. 按日期排序： 医生开处方，收银员收费，医药管理发药
+6. 系统管理员 添加修改删除staff功能
+	- Alter table [staff]: ALTER TABLE staff ADD created_Date DATETIME NULL, staff_status VARCHAR(20) NULL, delete_date DATETIME NULL;
+		Update staff set staff_status = '有效'
+	- 删除
+	- 修改功能
+
+----11th Edit----------------
+1. feeitem new item:  1-固定费用,2-变动费用,3-无效
+2. modify feeitem function under Admin workplace.
+3. modify prescription feeitem operating functions
+4. 最多可选5项 其他费用 已做代码限制
+
+
+----12th Edit----------------
+1. 实现连续打印2张的功能实现
+publish27
+
+----13th Edit----------------
+1. 处方 用法用量 选择功能实现
+2. 增加 药品有效期 :   ALTER TABLE medicine ADD effect_date VARCHAR(50) NULL;
+3. 药品管理 去掉 单位，单价
+4. 发药界面 增加药品规格； 发药者自动显示 登录用户
+5. 新增或修改药品后再做搜索的时候 出现很多 多余的列； 已修改；
+publish28
+
+----14th Edit----------------
+1. 处方数量输入 只能输入数字；
+2. 收银员看到发药后的历史数据；
+3. 医药管理可以看到收费金额
+publish29
+
+----15th Edit----------------
+1. 医药管理添加其他收费项查看功能
+2. 处方医药数量不可超出库存量
+3. 处方和药物搜索功能 操作完后自动清理搜索数据
+4. 医药管理 库存量增加 放在 新增一个界面里
+publish30
+
+----16th Edit----------------
+1. 退费后 可以在医生和药物管理里查询到
+2. 处方可以按挂号ID查询 功能加到收银员，医生和医药管理界面里
+publish31
+
+----17th Edit----------------
+1. 没有开药 收据不显示姓名
+2. 可选收费项选择不能超出3个
+publish32
+
